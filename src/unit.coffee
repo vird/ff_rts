@@ -1,4 +1,5 @@
 class @Unit
+  _remove          : false
   _last_update_tick: 0
   side      : 0
   

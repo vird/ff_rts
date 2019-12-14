@@ -50,6 +50,14 @@ describe 'Emulator section', ()->
   #    mechanics
   # ###################################################################################################
   
+  it "death_test", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.death_test()
+    result = emu.go()
+    assert.equal emu.state.tick_idx, 0
+    assert.equal result, 's1'
+    return
+  
   it "regen_test", ()->
     emu = new Emulator
     obj_set emu, state_collection.regen_test()

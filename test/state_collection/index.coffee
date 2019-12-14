@@ -56,6 +56,13 @@ tick_per_sec = 100
     end_condition : eliminate
   }
 
+@death_test = ()->
+  ret = module.eliminate_s0_s1()
+  {state} = ret
+  [u0, u1] = state.unit_list
+  u0.hp100 = 0
+  ret
+
 @regen_test = ()->
   ret = module.eliminate_s0_s1()
   {state} = ret

@@ -14,15 +14,40 @@ class @FF_emulator
   
   tick : ()->
     {unit_list, tick_idx} = @state
+    need_next_tick = false
     
     # regen
     for unit in unit_list
       dt = tick_idx - unit._last_update_tick
       regen_per_tick = unit.hp_reg100//@tick_per_sec
       unit.hp100 = Math.min unit.hp_max100, unit.hp100 + dt*regen_per_tick
+      if unit.hp100 <= 0
+        unit._remove  = true
+        need_next_tick= true
+      
       unit._last_update_tick = tick_idx
     
+    # простой и медленный способ
+    idx = 0
+    loop
+      break if idx >= unit_list.length
+      unit = unit_list[idx]
+      if unit._remove
+        unit_list.remove_idx idx
+        continue
+      idx++
+    
+    if need_next_tick
+      @need_tick tick_idx+1
+    
     # TBD
+    return
+  
+  need_tick : (tick_idx)->
+    if @tick_signal_list.length <= tick_idx
+      @tick_signal_list.length = tick_idx + 1
+    
+    @tick_signal_list[tick_idx] = true
     return
   
   next_tick_get : ()->
