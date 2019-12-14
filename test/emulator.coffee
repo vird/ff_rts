@@ -14,6 +14,10 @@ describe 'Emulator section', ()->
     assert.equal emu.state.tick_idx, emu.tick_limit
     assert.equal result, 'draw'
   
+  # ###################################################################################################
+  #    win condition = eliminate
+  # ###################################################################################################
+  
   it "sample 'empty_eliminate'", ()->
     emu = new Emulator
     obj_set emu, state_collection.empty_eliminate()
@@ -41,4 +45,17 @@ describe 'Emulator section', ()->
     result = emu.go()
     assert.equal emu.state.tick_idx, emu.tick_limit
     assert.equal result, 'draw'
+  
+  # ###################################################################################################
+  #    mechanics
+  # ###################################################################################################
+  
+  it "regen_test", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.regen_test()
+    result = emu.go()
+    assert.equal emu.state.tick_idx, emu.tick_limit
+    for unit in emu.state.unit_list
+      assert.equal unit.hp100, unit.hp_max100
+    return
   

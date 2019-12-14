@@ -10,10 +10,15 @@ class @State
     @projectile_list= []
     @aoe_list       = []
   
-  cmp : (t)->
-    return false if @unit_list.length != t.unit_list.length
+  assert_cmp : (t)->
+    if @unit_list.length != t.unit_list.length
+      throw new Error "@unit_list.length != t.unit_list.length #{@unit_list.length} != #{t.unit_list.length}"
+    t_unit_list = t.unit_list
+    for a, idx in @unit_list
+      b = t_unit_list[idx]
+      a.assert_cmp b
     
     # TBD
     
-    true
+    return
 

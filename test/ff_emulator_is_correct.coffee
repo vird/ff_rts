@@ -20,5 +20,5 @@ describe 'FF_emulator section', ()->
         obj_set ff_emu, v()
         ff_emu.go()
         
-        assert emu.state.cmp ff_emu.state
+        emu.state.assert_cmp ff_emu.state
   
