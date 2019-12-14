@@ -1,3 +1,4 @@
+{Unit} = require './unit'
 class @State
   tick_idx        : 0
   unit_list       : []
@@ -6,6 +7,7 @@ class @State
   # TODO dual array
   
   constructor:()->
+    Unit.uid = 0 # HACK
     @unit_list      = []
     @projectile_list= []
     @aoe_list       = []

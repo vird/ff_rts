@@ -1,6 +1,10 @@
+module = @
 class @Unit
   _remove          : false
   _last_update_tick: 0
+  @uid      : 0
+  
+  uid       : 0
   side      : 0
   
   hp100     : 100
@@ -11,9 +15,12 @@ class @Unit
   mp_max100 : 100
   mp_reg100 : 0
   
+  constructor : ()->
+    @uid = module.Unit.uid++
   
   assert_cmp : (t)->
     error_list = []
+    error_list.push "@uid       != t.uid       #{@uid      } != #{t.uid      }" if @uid       != t.uid       
     error_list.push "@side      != t.side      #{@side     } != #{t.side     }" if @side      != t.side      
     error_list.push "@hp100     != t.hp100     #{@hp100    } != #{t.hp100    }" if @hp100     != t.hp100     
     error_list.push "@hp_max100 != t.hp_max100 #{@hp_max100} != #{t.hp_max100}" if @hp_max100 != t.hp_max100 
