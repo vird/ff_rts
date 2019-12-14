@@ -1,4 +1,5 @@
 {State} = require './state'
+{tick_targeting} = require './heuristics'
 
 class @Emulator
   tick_per_sec  : 100
@@ -28,8 +29,24 @@ class @Emulator
         continue
       idx++
     
+    # re-targeting
+    unit_hash = {}
+    side_unit_list = [[], []]
+    for unit in unit_list
+      side_unit_list[unit.side].push unit
+      unit_hash[unit.uid] = true
+    [
+      u0_list
+      u1_list
+    ] = side_unit_list
+    
+    tick_targeting u0_list, u1_list, unit_hash
+    tick_targeting u1_list, u0_list, unit_hash
+    
     # TBD
     return
+  
+  
   
   go : ()->
     loop

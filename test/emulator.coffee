@@ -67,3 +67,16 @@ describe 'Emulator section', ()->
       assert.equal unit.hp100, unit.hp_max100
     return
   
+  # ###################################################################################################
+  #    targeting
+  # ###################################################################################################
+  
+  it "targeting", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.eliminate_s0_s1()
+    result = emu.go()
+    assert.equal emu.state.tick_idx, emu.tick_limit
+    [u0, u1] = emu.state.unit_list
+    assert.equal u0.target_unit_uid, u1.uid
+    assert.equal u1.target_unit_uid, u0.uid
+  

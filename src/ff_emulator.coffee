@@ -1,4 +1,5 @@
 {State} = require './state'
+{tick_targeting} = require './heuristics'
 
 class @FF_emulator
   tick_per_sec    : 100
@@ -23,7 +24,7 @@ class @FF_emulator
       unit.hp100 = Math.min unit.hp_max100, unit.hp100 + dt*regen_per_tick
       if unit.hp100 <= 0
         unit._remove  = true
-        need_next_tick= true
+        # need_next_tick= true
       
       unit._last_update_tick = tick_idx
     
@@ -36,6 +37,20 @@ class @FF_emulator
         unit_list.remove_idx idx
         continue
       idx++
+    
+    # re-targeting
+    unit_hash = {}
+    side_unit_list = [[], []]
+    for unit in unit_list
+      side_unit_list[unit.side].push unit
+      unit_hash[unit.uid] = true
+    [
+      u0_list
+      u1_list
+    ] = side_unit_list
+    
+    tick_targeting u0_list, u1_list, unit_hash
+    tick_targeting u1_list, u0_list, unit_hash
     
     if need_next_tick
       @need_tick tick_idx+1
