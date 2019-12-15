@@ -90,3 +90,45 @@ describe 'Emulator section', ()->
     result = emu.go()
     assert.equal emu.state.tick_idx, 2
     assert.equal result, 's0'
+  
+  it "hit2_kill", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.hit2_kill()
+    result = emu.go()
+    # 0 idle -> attack_pre
+    # 1 attack_pre -> attacking
+    # 2 attacking -> idle
+    # 3 idle -> attack_pre
+    # 4 attack_pre -> attacking
+    # 5 attacking -> lethan damage deal
+    assert.equal emu.state.tick_idx, 5
+    assert.equal result, 's0'
+  
+  # ###################################################################################################
+  #    cast
+  # ###################################################################################################
+  
+  it "mp should refill on src and dst", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.hit2_kill()
+    emu.tick_limit = 3
+    result = emu.go()
+    [u0, u1] = emu.state.unit_list
+    assert.equal u0.mp100, 2500
+    assert.equal u1.mp100, 2500
+  
+  it "hit10_kill should kill after 10 hit", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.hit10_kill()
+    result = emu.go()
+    assert.equal emu.state.tick_idx, 3*10-1
+    assert.equal result, 's0'
+  
+  it "hit10_kill_but_cast should kill after 4 hit + cast", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.hit10_kill_but_cast()
+    result = emu.go()
+    assert.equal emu.state.tick_idx, 3*5-1
+    assert.equal result, 's1'
+  
+  

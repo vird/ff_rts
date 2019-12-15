@@ -19,7 +19,11 @@ class @FF_emulator
   
   tick : ()->
     {state} = @
-    {unit_list, tick_idx} = state
+    {
+      tick_idx
+      unit_list
+      pending_effect_list
+    } = state
     need_next_tick = false
     # fsm move
     for unit in unit_list
@@ -27,6 +31,10 @@ class @FF_emulator
       if fn?(unit, state)
         @need_tick unit.fsm_next_event_tick
         @need_tick unit.next_tick_attack_available
+    
+    for effect in pending_effect_list
+      effect()
+    pending_effect_list.clear()
     
     # regen
     for unit in unit_list

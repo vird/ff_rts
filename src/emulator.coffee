@@ -16,11 +16,18 @@ class @Emulator
   
   tick : ()->
     {state} = @
-    {unit_list} = state
+    {
+      unit_list
+      pending_effect_list
+    } = state
     # fsm move
     for unit in unit_list
       fn = unit.fsm_ref.transition_hash[unit.fsm_idx][FSM_event.tick]
       fn?(unit, state)
+    
+    for effect in pending_effect_list
+      effect()
+    pending_effect_list.clear()
     
     # regen
     for unit in unit_list

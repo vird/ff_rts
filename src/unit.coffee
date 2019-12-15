@@ -21,8 +21,8 @@ class @Unit
   hp_max100   : 100
   hp_reg100   : 0
   
-  mp100       : 100
-  mp_max100   : 100
+  mp100       : 0
+  mp_max100   : 10000
   mp_reg100   : 0
   
   # ###################################################################################################
@@ -40,6 +40,13 @@ class @Unit
   next_tick_attack_available : 0
   
   # ###################################################################################################
+  #    cast
+  # ###################################################################################################
+  
+  cast_pre    : 1
+  # cast_post   : 1 # unused
+  
+  # ###################################################################################################
   
   # targeting_system
   target_unit_uid     : -1
@@ -51,7 +58,7 @@ class @Unit
   constructor : ()->
     @uid = module.Unit.uid++
   
-  target_policy : (target_unit_list)->
+  target_policy : (target_unit_list)-> # can be replaceable
     {x,y} = @
     best_unit = target_unit_list[0]
     unit = best_unit

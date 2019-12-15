@@ -5,6 +5,8 @@ class @State
   unit_list       : []
   projectile_list : []
   aoe_list        : []
+  
+  pending_effect_list : []
   # TODO dual array??
   
   # cache
@@ -16,6 +18,7 @@ class @State
     @unit_list      = []
     @projectile_list= []
     @aoe_list       = []
+    @pending_effect_list = []
     
     @cache_unit_hash= {}
     @cache_side_unit_list = []

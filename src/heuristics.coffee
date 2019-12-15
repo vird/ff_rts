@@ -54,10 +54,18 @@ module = @
   return
 
 @damage_deal = (src, dst, state)->
-  # p "damage_deal #{state.tick_idx}"
-  damage100 = src.ad100
-  dst.hp100 -= damage100
-  
-  state.event_counter++
+  state.pending_effect_list.push ()->
+    # p "damage_deal #{src.ad100} #{state.tick_idx}"
+    damage100 = src.ad100
+    dst.hp100 -= damage100
+    
+    state.event_counter++
+    
+    # only if src is unit
+    src.mp100 = Math.min src.mp_max100, src.mp100 + 2500
+    dst.mp100 = Math.min dst.mp_max100, dst.mp100 + 2500
+    
+    # p "damage_deal #{src.ad100} #{dst.hp100} #{state.tick_idx}"
+    return
   
   return

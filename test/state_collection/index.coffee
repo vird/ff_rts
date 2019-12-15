@@ -16,6 +16,15 @@ tick_per_sec = 100
 # ###################################################################################################
 fsm_noop  = fsm_hash.fsm_craft {}
 fsm_melee = fsm_hash.fsm_craft {attack_type : 'melee'}
+fsm_caster= fsm_hash.fsm_craft {
+  cast_type   : 'cast'
+  cast_effect : ({unit, target, state})->
+    state.pending_effect_list.push ()->
+      target.hp100 -= 10000 # large hit
+      unit.mp100 = Math.max 0, unit.mp100 - 10000 # exhaust all mana
+      return
+    return
+}
 
 # ###################################################################################################
 #    emulator test pack
@@ -90,6 +99,34 @@ fsm_melee = fsm_hash.fsm_craft {attack_type : 'melee'}
   u0.a_pre = 1
   u0.a_post= 1
   u0.fsm_ref = fsm_melee
+  ret
+
+@hit2_kill = ()->
+  ret = module.eliminate_s0_s1()
+  {state} = ret
+  [u0, u1] = state.unit_list
+  u0.ad100 = 50
+  u0.a_pre = 1
+  u0.a_post= 1
+  u0.fsm_ref = fsm_melee
+  ret
+
+@hit10_kill = ()->
+  ret = module.eliminate_s0_s1()
+  ret.tick_limit = 100
+  {state} = ret
+  [u0, u1] = state.unit_list
+  u0.ad100 = 10
+  u0.a_pre = 1
+  u0.a_post= 1
+  u0.fsm_ref = fsm_melee
+  ret
+
+@hit10_kill_but_cast = ()->
+  ret = module.hit10_kill()
+  {state} = ret
+  [u0, u1] = state.unit_list
+  u1.fsm_ref = fsm_caster
   ret
 
 # ###################################################################################################
