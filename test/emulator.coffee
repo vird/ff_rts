@@ -80,3 +80,13 @@ describe 'Emulator section', ()->
     assert.equal u0.target_unit_uid, u1.uid
     assert.equal u1.target_unit_uid, u0.uid
   
+  # ###################################################################################################
+  #    attack + damage deal
+  # ###################################################################################################
+  
+  it "oneshot_kill", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.oneshot_kill()
+    result = emu.go()
+    assert.equal emu.state.tick_idx, 2
+    assert.equal result, 's0'

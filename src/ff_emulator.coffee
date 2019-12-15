@@ -1,5 +1,9 @@
 {State} = require './state'
-{tick_targeting} = require './heuristics'
+{FSM_event} = require './fsm'
+{
+  dead_remove
+  retargeting
+} = require './heuristics'
 
 class @FF_emulator
   tick_per_sec    : 100
@@ -14,8 +18,15 @@ class @FF_emulator
     @tick_signal_list = []
   
   tick : ()->
-    {unit_list, tick_idx} = @state
+    {state} = @
+    {unit_list, tick_idx} = state
     need_next_tick = false
+    # fsm move
+    for unit in unit_list
+      fn = unit.fsm_ref.transition_hash[unit.fsm_idx][FSM_event.tick]
+      if fn?(unit, state)
+        @need_tick unit.fsm_next_event_tick
+        @need_tick unit.next_tick_attack_available
     
     # regen
     for unit in unit_list
@@ -23,34 +34,14 @@ class @FF_emulator
       regen_per_tick = unit.hp_reg100//@tick_per_sec
       unit.hp100 = Math.min unit.hp_max100, unit.hp100 + dt*regen_per_tick
       if unit.hp100 <= 0
-        unit._remove  = true
+        state.event_counter++
+        unit._remove = true
         # need_next_tick= true
       
       unit._last_update_tick = tick_idx
     
-    # простой и медленный способ
-    idx = 0
-    loop
-      break if idx >= unit_list.length
-      unit = unit_list[idx]
-      if unit._remove
-        unit_list.remove_idx idx
-        continue
-      idx++
-    
-    # re-targeting
-    unit_hash = {}
-    side_unit_list = [[], []]
-    for unit in unit_list
-      side_unit_list[unit.side].push unit
-      unit_hash[unit.uid] = true
-    [
-      u0_list
-      u1_list
-    ] = side_unit_list
-    
-    tick_targeting u0_list, u1_list, unit_hash
-    tick_targeting u1_list, u0_list, unit_hash
+    dead_remove state
+    retargeting state
     
     if need_next_tick
       @need_tick tick_idx+1
@@ -59,6 +50,7 @@ class @FF_emulator
     return
   
   need_tick : (tick_idx)->
+    # p "need_tick #{tick_idx}"
     if @tick_signal_list.length <= tick_idx
       @tick_signal_list.length = tick_idx + 1
     
@@ -74,6 +66,7 @@ class @FF_emulator
     next_tick_idx
   
   go : ()->
+    @state.cache_actualize()
     loop
       @tick()
       
