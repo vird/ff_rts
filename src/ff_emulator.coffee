@@ -10,6 +10,7 @@ class @FF_emulator
   tick_limit      : 0
   state           : null
   end_condition   : (state, is_last_tick)->if is_last_tick then 'draw' else null # replaceable
+  ff_tick         : 0
   
   tick_signal_list: []
   
@@ -18,6 +19,7 @@ class @FF_emulator
     @tick_signal_list = []
   
   tick : ()->
+    @ff_tick++
     {
       state
       tick_per_sec
@@ -56,8 +58,8 @@ class @FF_emulator
         projectile.y += vy
         t_left = Math.ceil(d/ms_per_tick) - dt
         
-        # half_t_left = Math.max 1, t_left # FULL travel mode
-        half_t_left = Math.max 1, t_left//2 # HALF travel mode
+        half_t_left = Math.max 1, t_left # FULL travel mode
+        # half_t_left = Math.max 1, t_left//2 # HALF travel mode
         projectile.hd_next_tick = tick_idx + half_t_left
     
     # fsm move
