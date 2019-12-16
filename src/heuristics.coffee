@@ -20,6 +20,7 @@ module = @
   # простой и медленный способ
   {
     unit_list
+    projectile_list
     cache_unit_hash
     cache_side_unit_list
   } = state
@@ -35,6 +36,16 @@ module = @
       cache_side_unit_list[unit.side].remove unit
       continue
     idx++
+  
+  idx = 0
+  loop
+    break if idx >= projectile_list.length
+    projectile = projectile_list[idx]
+    if projectile_list._remove
+      projectile_list.remove_idx idx
+      continue
+    idx++
+  
   
   return
 
@@ -67,5 +78,12 @@ module = @
     
     # p "damage_deal #{src.ad100} #{dst.hp100} #{state.tick_idx}"
     return
+  
+  return
+
+@projectile_process = (state)->
+  {
+    projectile_list
+  } = state
   
   return

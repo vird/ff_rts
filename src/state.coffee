@@ -1,4 +1,5 @@
 {Unit} = require './unit'
+{Projectile} = require './projectile'
 class @State
   tick_idx        : 0
   event_counter   : 0 # for consistency check only
@@ -15,6 +16,7 @@ class @State
   
   constructor:()->
     Unit.uid = 0 # HACK
+    Projectile.uid = 0 # HACK
     @unit_list      = []
     @projectile_list= []
     @aoe_list       = []
@@ -33,6 +35,11 @@ class @State
     t_unit_list = t.unit_list
     for a, idx in @unit_list
       b = t_unit_list[idx]
+      a.assert_cmp b
+    
+    t_projectile_list = t.projectile_list
+    for a, idx in @projectile_list
+      b = t_projectile_list[idx]
       a.assert_cmp b
     
     # extra check cache for 100% consistency

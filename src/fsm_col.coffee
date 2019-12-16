@@ -1,3 +1,4 @@
+{Projectile} = require './projectile'
 {
   FSM
   FSM_unit_state
@@ -99,6 +100,16 @@
             unit.fsm_next_event_tick = state.tick_idx+1
             return true
           # TODO create projectile
+          projectile = new Projectile
+          projectile.hd_next_tick = state.tick_idx + 1
+          projectile.x = unit.x
+          projectile.y = unit.y
+          projectile.target = target
+          projectile.effect = ()->
+            damage_deal unit, target, state
+          state.projectile_list.push projectile
+          state.event_counter++
+          
           unit.fsm_idx = FSM_unit_state.idling
           unit.next_tick_attack_available = state.tick_idx + unit.a_post
           return true

@@ -16,6 +16,7 @@ tick_per_sec = 100
 # ###################################################################################################
 fsm_noop  = fsm_hash.fsm_craft {}
 fsm_melee = fsm_hash.fsm_craft {attack_type : 'melee'}
+fsm_ranged= fsm_hash.fsm_craft {attack_type : 'ranged'}
 fsm_caster= fsm_hash.fsm_craft {
   cast_type   : 'cast'
   cast_effect : ({unit, target, state})->
@@ -128,6 +129,20 @@ fsm_caster= fsm_hash.fsm_craft {
   [u0, u1] = state.unit_list
   u1.fsm_ref = fsm_caster
   ret
+# ###################################################################################################
+#    ranged
+# ###################################################################################################
 
+@ranged_oneshot_kill = ()->
+  ret = module.eliminate_s0_s1()
+  ret.tick_limit = 100
+  {state} = ret
+  [u0, u1] = state.unit_list
+  u0.ad100 = 1e9
+  u0.a_pre = 10
+  u0.a_post= 10
+  u0.fsm_ref = fsm_ranged
+  u1.x = 100
+  ret
 # ###################################################################################################
 
