@@ -1,4 +1,6 @@
 module = @
+{Status_effect} = require './status_effect'
+
 class @Unit
   _remove          : false
   _last_update_tick: 0
@@ -45,6 +47,14 @@ class @Unit
   
   cast_pre    : 1
   # cast_post   : 1 # unused
+  # ###################################################################################################
+  #    status effect
+  # ###################################################################################################
+  # 32*4 статус эффекта
+  # Лучше сделать лишний раз << & чем вылететь на большой симуляции за кэш процессора
+  status_effect_bitmap: [0, 0, 0, 0]
+  # PROPOSITION а еще лучше было бы раскладывать из по bucket'ам для более быстрого обновления флагов, но это очень спорный trade-off
+  status_effect_list  : []
   
   # ###################################################################################################
   
@@ -57,6 +67,8 @@ class @Unit
   
   constructor : ()->
     @uid = module.Unit.uid++
+    @status_effect_bitmap = [0,0,0,0]
+    @status_effect_list   = []
   
   target_policy : (target_unit_list)-> # can be replaceable
     {x,y} = @
@@ -108,3 +120,45 @@ class @Unit
     
     return
   
+  # ###################################################################################################
+  #    usefil stuff
+  # ###################################################################################################
+  # doesn't check applicability, doesn't affect fsm
+  status_effect_raw_add : (id, until_ts)->
+    big_idx   = id // 32
+    small_idx = id  % 32
+    mask      = 1 << small_idx
+    @status_effect_bitmap[big_idx] |= mask
+    # p "status_effect_raw_add", @status_effect_bitmap # DEBUG
+    status_effect = new Status_effect
+    status_effect.id = id
+    status_effect.until_ts = until_ts
+    @status_effect_list.push status_effect
+    return
+  
+  # НЕЛЬЗЯ удалять эффект из status_effect_bitmap т.к. может быть несколько разных источников stun'а, и нужно дождаться последнего
+  # don't touch status_effect_list, there is more optimal way when you are already iterating over it
+  # status_effect_raw_remove : (id)->
+  #   big_idx   = id // 32
+  #   small_idx = id  % 32
+  #   mask      = 1 << small_idx
+  #   @status_effect_bitmap[big_idx] &= ~mask
+  #   return
+  status_effect_update_bitmap : ()->
+    # super opt
+    {status_effect_bitmap} = @
+    status_effect_bitmap[0] = 0
+    status_effect_bitmap[1] = 0
+    status_effect_bitmap[2] = 0
+    status_effect_bitmap[3] = 0
+    
+    for status_effect in @status_effect_list
+      {id} = status_effect
+      big_idx   = id // 32
+      small_idx = id  % 32
+      mask      = 1 << small_idx
+      # p "ADD mask #{mask}"
+      status_effect_bitmap[big_idx] |= mask
+    # p "status_effect_update_bitmap", status_effect_bitmap
+    return
+    

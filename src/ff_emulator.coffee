@@ -3,7 +3,14 @@
 {
   dead_remove
   retargeting
+  status_effect_remove
 } = require './heuristics'
+{
+  status_effect_to_idx_mask
+  status_effect_hash
+} = require './status_effect'
+
+{big_idx:fast_stun_idx, mask:fast_stun_mask} = status_effect_to_idx_mask status_effect_hash.stun
 
 class @FF_emulator
   tick_per_sec    : 100
@@ -30,7 +37,10 @@ class @FF_emulator
       projectile_list
       pending_effect_list
     } = state
+    
     need_next_tick = false
+    
+    status_effect_remove state
     
     # projectile move
     for projectile in projectile_list
@@ -64,6 +74,9 @@ class @FF_emulator
     
     # fsm move
     for unit in unit_list
+      if unit.status_effect_bitmap[fast_stun_idx] & fast_stun_mask
+        # p "ff stun skip #{tick_idx}"
+        continue
       fn = unit.fsm_ref.transition_hash[unit.fsm_idx][FSM_event.tick]
       if fn?(unit, state)
         @need_tick unit.fsm_next_event_tick
@@ -75,11 +88,14 @@ class @FF_emulator
         @need_tick projectile.hd_next_tick
     
     for effect in pending_effect_list
-      effect()
+      update_list = effect()
+      for unit in update_list
+        @need_tick unit.fsm_next_event_tick
     pending_effect_list.clear()
     
     # regen
     for unit in unit_list
+      # hp
       dt = tick_idx - unit._last_update_tick
       regen_per_tick = unit.hp_reg100//tick_per_sec
       unit.hp100 = Math.min unit.hp_max100, unit.hp100 + dt*regen_per_tick
@@ -88,10 +104,15 @@ class @FF_emulator
         unit._remove = true
         # need_next_tick= true
       
+      # mp
+      regen_per_tick = unit.mp_reg100//tick_per_sec
+      unit.mp100 = Math.max 0, Math.min unit.mp_max100, unit.mp100 + regen_per_tick
+      
       unit._last_update_tick = tick_idx
     
     dead_remove state
-    retargeting state
+    if retargeting state
+      need_next_tick = true
     
     if need_next_tick
       @need_tick tick_idx+1
@@ -123,6 +144,7 @@ class @FF_emulator
       break if @end_condition @state
       break if @state.tick_idx >= @tick_limit
       @state.tick_idx = @next_tick_get()
+    # p "ff_tick=#{@ff_tick} #{@state.tick_idx}"
     @end_condition @state, true
   
 

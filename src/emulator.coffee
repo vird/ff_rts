@@ -1,9 +1,17 @@
+{status_effect_hash} = require './unit'
 {State} = require './state'
 {FSM_event} = require './fsm'
 {
   dead_remove
   retargeting
+  status_effect_remove
 } = require './heuristics'
+{
+  status_effect_to_idx_mask
+  status_effect_hash
+} = require './status_effect'
+
+{big_idx:fast_stun_idx, mask:fast_stun_mask} = status_effect_to_idx_mask status_effect_hash.stun
 
 class @Emulator
   tick_per_sec  : 100
@@ -20,10 +28,13 @@ class @Emulator
       tick_per_sec
     } = @
     {
+      tick_idx
       unit_list
       projectile_list
       pending_effect_list
     } = state
+    
+    status_effect_remove state
     
     # projectile move
     for projectile in projectile_list
@@ -50,6 +61,9 @@ class @Emulator
     
     # fsm move
     for unit in unit_list
+      if unit.status_effect_bitmap[fast_stun_idx] & fast_stun_mask
+        # p "stun skip #{tick_idx}"
+        continue
       fn = unit.fsm_ref.transition_hash[unit.fsm_idx][FSM_event.tick]
       fn?(unit, state)
     
@@ -59,12 +73,17 @@ class @Emulator
     
     # regen
     for unit in unit_list
+      # hp
       regen_per_tick = unit.hp_reg100//tick_per_sec
       unit.hp100 = Math.min unit.hp_max100, unit.hp100 + regen_per_tick
       
       if unit.hp100 <= 0
         state.event_counter++
         unit._remove = true
+      
+      # mp
+      regen_per_tick = unit.mp_reg100//tick_per_sec
+      unit.mp100 = Math.max 0, Math.min unit.mp_max100, unit.mp100 + regen_per_tick
     
     dead_remove state
     retargeting state

@@ -46,7 +46,7 @@
   # CLOSURE!!!!
   ret.transition_hash[FSM_unit_state.idling][FSM_event.tick] = (unit, state)->
     {tick_idx} = state
-    scheduled = false
+    
     if can_cast
       loop
         # TODO check silence
@@ -55,17 +55,15 @@
         unit.fsm_next_event_tick = state.tick_idx + unit.cast_pre
         unit.fsm_idx = FSM_unit_state.casting_pre
         return true
+    
     if can_attack
       if unit.next_tick_attack_available <= tick_idx
         unit.fsm_next_event_tick = state.tick_idx + unit.a_pre
         unit.fsm_idx = FSM_unit_state.attacking_pre
         return true
       else
-        if scheduled
-          unit.fsm_next_event_tick = Math.min unit.fsm_next_event_tick, unit.next_tick_attack_available
-        else
-          unit.fsm_next_event_tick = unit.next_tick_attack_available
-          scheduled = true
+        unit.fsm_next_event_tick = unit.next_tick_attack_available
+        return true
     
     return false
   
@@ -125,6 +123,7 @@
           unit.fsm_idx = FSM_unit_state.idling
           unit.fsm_next_event_tick = state.tick_idx+1
           return true
+        
         unit.fsm_idx = FSM_unit_state.casting
         unit.fsm_next_event_tick = state.tick_idx+1
         return true

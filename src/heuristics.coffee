@@ -1,10 +1,12 @@
 module = @
 @tick_targeting = (u0_list, u1_list, unit_hash)->
+  need_retarget_count = 0
   for u0 in u0_list
     need_retarget = false
     need_retarget = true if u0.target_unit_uid == -1
     need_retarget = true if !unit_hash[u0.target_unit_uid]
     if need_retarget
+      need_retarget_count++
       if u1_list.length == 0
         u0.target_unit_uid = -1
         continue
@@ -14,7 +16,24 @@ module = @
         u0.target_unit_uid = -1
       else
         u0.target_unit_uid = target.uid
-  return
+  need_retarget_count
+
+@retargeting = (state)->
+  {
+    cache_unit_hash
+    cache_side_unit_list
+  } = state
+  
+  [
+    u0_list
+    u1_list
+  ] = cache_side_unit_list
+  
+  need_retarget_count = 0
+  need_retarget_count += module.tick_targeting u0_list, u1_list, cache_unit_hash
+  need_retarget_count += module.tick_targeting u1_list, u0_list, cache_unit_hash
+  need_retarget_count
+# ###################################################################################################
 
 @dead_remove = (state)->
   # простой и медленный способ
@@ -49,35 +68,24 @@ module = @
   
   return
 
-@retargeting = (state)->
-  {
-    cache_unit_hash
-    cache_side_unit_list
-  } = state
-  
-  [
-    u0_list
-    u1_list
-  ] = cache_side_unit_list
-  
-  module.tick_targeting u0_list, u1_list, cache_unit_hash
-  module.tick_targeting u1_list, u0_list, cache_unit_hash
-  return
-
+# attack damage deal
 @damage_deal = (src, dst, state)->
   state.pending_effect_list.push ()->
-    # p "damage_deal #{src.ad100} #{state.tick_idx}"
+    # TODO attack modifiers
+    
+    # p "damage_deal ad=#{src.ad100} t=#{state.tick_idx}"
     damage100 = src.ad100
     dst.hp100 -= damage100
     
     state.event_counter++
     
-    # only if src is unit
-    src.mp100 = Math.min src.mp_max100, src.mp100 + 2500
-    dst.mp100 = Math.min dst.mp_max100, dst.mp100 + 2500
+    # TODO only if src is unit
+    # TODO src should get more mana
+    src.mp100 += 2500
+    dst.mp100 += 2500
     
     # p "damage_deal #{src.ad100} #{dst.hp100} #{state.tick_idx}"
-    return
+    return [src, dst]
   
   return
 
@@ -86,4 +94,30 @@ module = @
     projectile_list
   } = state
   
+  return
+
+@status_effect_remove = (state)->
+  # p "status_effect_remove #{state.tick_idx}"
+  {
+    tick_idx
+    unit_list
+  } = state
+  for unit in unit_list
+    {status_effect_list} = unit
+    remove_idx_list = []
+    for status_effect, idx in unit.status_effect_list
+      if tick_idx > status_effect.until_ts # DEV
+        throw new Error "OVERSHOOT #{state.tick_idx - unit.fsm_next_event_tick}"
+      if tick_idx == status_effect.until_ts
+        # p "NEED REMOVE #{tick_idx} <= #{status_effect.until_ts}"
+        remove_idx_list.push idx
+    
+    # reverse for preserving index order in rest array
+    if remove_idx_list.length
+      while remove_idx_list.length
+        idx = remove_idx_list.pop()
+        # TODO OPT inline
+        # TODO OPT perform only 1 length change
+        status_effect_list.fast_remove_idx idx
+      unit.status_effect_update_bitmap()
   return
