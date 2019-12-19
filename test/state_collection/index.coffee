@@ -66,7 +66,7 @@ fsm_cast_super_stun= fsm_hash.fsm_craft {
 }
 
 # ###################################################################################################
-#    emulator test pack
+#    basic test pack
 # ###################################################################################################
 @empty = ()->
   {
@@ -160,6 +160,31 @@ fsm_cast_super_stun= fsm_hash.fsm_craft {
   u0.a_post= 1
   u0.fsm_ref = fsm_melee
   ret
+
+@oneshot_kill_x2_target = ()->
+  ret = module.oneshot_kill()
+  {state} = ret
+  state.unit_list.push unit = new Unit
+  unit.fsm_ref = fsm_noop
+  unit.side = 1
+  ret
+
+@oneshot_kill_x3_target_random_placement = ()->
+  ret = module.oneshot_kill()
+  {state} = ret
+  state.unit_list.push unit = new Unit
+  unit.fsm_ref = fsm_noop
+  unit.side = 1
+  state.unit_list.push unit = new Unit
+  unit.fsm_ref = fsm_noop
+  unit.side = 1
+  [u0, u1, u2, u3] = state.unit_list
+  u1.x = 1
+  u2.x = 3
+  u3.x = 2
+  
+  ret
+
 # ###################################################################################################
 #    ranged
 # ###################################################################################################

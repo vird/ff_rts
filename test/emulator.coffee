@@ -81,6 +81,24 @@ describe 'Emulator section', ()->
     assert.equal emu.state.tick_idx, emu.tick_limit
     return
   
+  it "retargeting 2", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.oneshot_kill_x2_target()
+    result = emu.go()
+    [u0, u1] = emu.state.unit_list
+    assert.equal result, 's0'
+    assert.equal emu.state.tick_idx, 3*2-1
+    return
+  
+  it "retargeting 3", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.oneshot_kill_x3_target_random_placement()
+    result = emu.go()
+    [u0, u1] = emu.state.unit_list
+    assert.equal result, 's0'
+    assert.equal emu.state.tick_idx, 3*3-1
+    return
+  
   # ###################################################################################################
   #    attack + damage deal
   # ###################################################################################################
