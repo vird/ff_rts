@@ -200,6 +200,18 @@ fsm_cast_super_stun= fsm_hash.fsm_craft {
   u0.fsm_ref = fsm_ranged
   u1.x = 100
   ret
+
+@ranged_multishot_kill = ()->
+  ret = module.eliminate_s0_s1()
+  ret.tick_limit = 150
+  {state} = ret
+  [u0, u1] = state.unit_list
+  u0.ad100 = 20
+  u0.a_pre = 10
+  u0.a_post= 10
+  u0.fsm_ref = fsm_ranged
+  u1.x = 100
+  ret
 # ###################################################################################################
 #    cast
 # ###################################################################################################

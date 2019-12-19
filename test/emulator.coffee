@@ -134,7 +134,26 @@ describe 'Emulator section', ()->
     obj_set emu, state_collection.ranged_oneshot_kill()
     result = emu.go()
     assert.equal result, 's0'
-    # assert.equal emu.state.tick_idx, 2
+    speed     = 1000 # units/sec
+    tick_rate = 100
+    distance  = 100
+    t = distance/(speed/tick_rate)
+    # animation 10+1+1 projectile spawn
+    assert.equal emu.state.tick_idx, 2+10+t
+    return
+  
+  it "ranged_multishot_kill", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.ranged_multishot_kill()
+    result = emu.go()
+    assert.equal result, 's0'
+    speed     = 1000 # units/sec
+    tick_rate = 100
+    distance  = 100
+    t = distance/(speed/tick_rate)
+    # 4 attacks 10 pre + 10 post + 1 attack
+    # 5th attack only 10 pre
+    assert.equal emu.state.tick_idx, 2+4*21+10+t
     return
   # ###################################################################################################
   #    cast

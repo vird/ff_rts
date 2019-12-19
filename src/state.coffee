@@ -27,10 +27,6 @@ class @State
   
   assert_cmp : (t)->
     ### !pragma coverage-skip-block ###
-    if @event_counter != t.event_counter
-      throw new Error "@event_counter != t.event_counter #{@event_counter} != #{t.event_counter}"
-    if @tick_idx != t.tick_idx
-      throw new Error "@tick_idx != t.tick_idx #{@tick_idx} != #{t.tick_idx}"
     if @unit_list.length != t.unit_list.length
       throw new Error "@unit_list.length != t.unit_list.length #{@unit_list.length} != #{t.unit_list.length}"
     t_unit_list = t.unit_list
@@ -57,8 +53,10 @@ class @State
         if unit.uid != t_side_list[unit_idx].uid
           throw new Error "Cache mismatch. side=#{side} unit_idx=#{unit_idx} unit.uid=#{unit.uid} mismatch"
     
-    # TBD
-    
+    if @event_counter != t.event_counter
+      throw new Error "@event_counter != t.event_counter #{@event_counter} != #{t.event_counter}"
+    if @tick_idx != t.tick_idx
+      throw new Error "@tick_idx != t.tick_idx #{@tick_idx} != #{t.tick_idx}"
     return
   
   cache_actualize : ()->

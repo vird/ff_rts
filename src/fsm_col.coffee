@@ -150,6 +150,7 @@
         unit.fsm_next_event_tick = state.tick_idx+1
         return true
     else
+      ### !pragma coverage-skip-block ###
       throw new Error "!cast_target_enemy not implemented"
   
   ret

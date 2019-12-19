@@ -61,7 +61,7 @@ module = @
   loop
     break if idx >= projectile_list.length
     projectile = projectile_list[idx]
-    if projectile_list._remove
+    if projectile._remove
       projectile_list.remove_idx idx
       continue
     idx++
@@ -98,13 +98,6 @@ module = @
   
   return
 
-@projectile_process = (state)->
-  {
-    projectile_list
-  } = state
-  
-  return
-
 @status_effect_remove = (state)->
   # p "status_effect_remove #{state.tick_idx}"
   {
@@ -116,6 +109,7 @@ module = @
     remove_idx_list = []
     for status_effect, idx in unit.status_effect_list
       if tick_idx > status_effect.until_ts # DEV
+        ### !pragma coverage-skip-block ###
         throw new Error "OVERSHOOT #{state.tick_idx - unit.fsm_next_event_tick}"
       if tick_idx == status_effect.until_ts
         # p "NEED REMOVE #{tick_idx} <= #{status_effect.until_ts}"
