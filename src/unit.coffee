@@ -101,6 +101,7 @@ class @Unit
     best_unit
   
   assert_cmp : (t)->
+    ### !pragma coverage-skip-block ###
     error_list = []
     error_list.push "@uid         != t.uid          #{@uid        } != #{t.uid        }" if @uid          != t.uid         
     error_list.push "@x           != t.x            #{@x          } != #{t.x          }" if @x            != t.x           

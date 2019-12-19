@@ -26,6 +26,7 @@ class @State
     @cache_side_unit_list = []
   
   assert_cmp : (t)->
+    ### !pragma coverage-skip-block ###
     if @event_counter != t.event_counter
       throw new Error "@event_counter != t.event_counter #{@event_counter} != #{t.event_counter}"
     if @tick_idx != t.tick_idx

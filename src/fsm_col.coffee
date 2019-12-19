@@ -25,18 +25,19 @@
         ret.state_list.push FSM_unit_state.attacking_pre
         ret.state_list.push FSM_unit_state.attacking
       else
+        ### !pragma coverage-skip-block ###
         throw new Error "unknown attack_type '#{opt.attack_type}'"
   
   if can_cast = opt.cast_type?
     switch opt.cast_type
-      when 'instant'
-        'none'
       when 'cast'
         ret.state_list.push FSM_unit_state.casting_pre
         ret.state_list.push FSM_unit_state.casting
       when 'channel'
+        ### !pragma coverage-skip-block ###
         throw new Error "unimplemented channel cast_type"
       else
+        ### !pragma coverage-skip-block ###
         throw new Error "unknown cast_type '#{opt.cast_type}'"
   
   for state in ret.state_list
@@ -74,7 +75,9 @@
         unit.fsm_next_event_tick = state.tick_idx+1
         return true
       return false if unit.fsm_next_event_tick > state.tick_idx
-      throw new Error "OVERSHOOT #{state.tick_idx - unit.fsm_next_event_tick}" if unit.fsm_next_event_tick < state.tick_idx # DEV
+      if unit.fsm_next_event_tick < state.tick_idx # DEV
+        ### !pragma coverage-skip-block ###
+        throw new Error "OVERSHOOT #{state.tick_idx - unit.fsm_next_event_tick}"
       unit.fsm_idx = FSM_unit_state.attacking
       unit.fsm_next_event_tick = state.tick_idx+1
       return true
@@ -114,11 +117,14 @@
   
   if can_cast
     if !cast_effect
+      ### !pragma coverage-skip-block ###
       throw new Error "missing cast_effect"
     if cast_target_enemy
       ret.transition_hash[FSM_unit_state.casting_pre][FSM_event.tick] = (unit, state)->
         return false if unit.fsm_next_event_tick > state.tick_idx
-        throw new Error "OVERSHOOT #{state.tick_idx - unit.fsm_next_event_tick}" if unit.fsm_next_event_tick < state.tick_idx # DEV
+        if unit.fsm_next_event_tick < state.tick_idx # DEV
+          ### !pragma coverage-skip-block ###
+          throw new Error "OVERSHOOT #{state.tick_idx - unit.fsm_next_event_tick}"
         if !target = state.cache_unit_hash[unit.target_unit_uid]
           unit.fsm_idx = FSM_unit_state.idling
           unit.fsm_next_event_tick = state.tick_idx+1
