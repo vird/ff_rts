@@ -4,6 +4,7 @@ module = @
   Unit
   status_effect_hash
   FSM_unit_state
+  Damage_modifier
   end_game_condition_hash
   fsm_hash
 } = require '../../src/index'
@@ -228,3 +229,53 @@ fsm_cast_super_stun= fsm_hash.fsm_craft {
   # получает ману
   u1.fsm_ref = fsm_cast_super_stun
   ret
+
+# ###################################################################################################
+#    attack modifier
+# ###################################################################################################
+
+@static_crit_demo = ()->
+  ret = module.eliminate_s0_s1()
+  {state} = ret
+  [u0, u1] = state.unit_list
+  # Царапается
+  u0.ad100 = 1
+  u0.a_pre = 1
+  u0.a_post= 1
+  u0.fsm_ref = fsm_melee
+  u0.a_mod_fn_list.push dm = new Damage_modifier
+  dm.fn = (di, src, dst, state)->
+    di.damage100 *= 100 # crit 100_000%
+    return
+  
+  ret
+
+# TODO random crit
+
+# ###################################################################################################
+#    damage block modifier
+# ###################################################################################################
+
+@damage_block_demo = ()->
+  ret = module.oneshot_kill()
+  ret.tick_limit = 100
+  {state} = ret
+  [u0, u1] = state.unit_list
+  
+  u1.damage_block_fn_list.push dm = new Damage_modifier
+  dm.order = 999
+  dm.fn = (di, src, dst, state)->
+    # reduce all to 10 damage
+    di.damage100 = Math.min di.damage100, 10
+    return
+  
+  ret
+# TODO spectre damage to all near enemy
+# TODO blade mail return damage instance (NOTE no infinite loop)
+
+# ###################################################################################################
+#    status effect
+# ###################################################################################################
+
+# TODO desolator = apply status effect on attack
+

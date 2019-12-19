@@ -1,6 +1,7 @@
 require 'fy'
 obj_set @, require './state'
 obj_set @, require './status_effect'
+obj_set @, require './damage'
 obj_set @, require './unit'
 obj_set @, require './fsm'
 obj_set @, require './emulator'

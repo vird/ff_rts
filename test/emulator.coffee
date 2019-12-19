@@ -118,7 +118,6 @@ describe 'Emulator section', ()->
     assert.equal result, 's0'
     # assert.equal emu.state.tick_idx, 2
     return
-  
   # ###################################################################################################
   #    cast
   # ###################################################################################################
@@ -148,6 +147,10 @@ describe 'Emulator section', ()->
     assert.equal result, 's1'
     assert.equal emu.state.tick_idx, 3*5-1
     return
+  
+  # ###################################################################################################
+  #    status effect : stun
+  # ###################################################################################################
   
   it "oneshot_kill_but_cast_stun should kill after 10 hit cast", ()->
     emu = new Emulator
@@ -184,4 +187,27 @@ describe 'Emulator section', ()->
     assert.equal emu.state.tick_idx, 3*4+3+10 + (3*3+3+10)*8 + 3*3 + 3-1
     return
   
+  # ###################################################################################################
+  #    attack modifier
+  # ###################################################################################################
+  
+  it "static_crit_demo should be oneshot", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.static_crit_demo()
+    result = emu.go()
+    assert.equal result, 's0'
+    assert.equal emu.state.tick_idx, 2
+    return
+  
+  # ###################################################################################################
+  #    damage block modifier
+  # ###################################################################################################
+  
+  it "damage_block_demo should be not oneshot", ()->
+    emu = new Emulator
+    obj_set emu, state_collection.damage_block_demo()
+    result = emu.go()
+    assert.equal result, 's0'
+    assert.equal emu.state.tick_idx, 3*10-1
+    return
   

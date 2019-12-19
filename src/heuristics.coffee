@@ -1,3 +1,4 @@
+{Damage_instance} = require './damage'
 module = @
 @tick_targeting = (u0_list, u1_list, unit_hash)->
   need_retarget_count = 0
@@ -74,8 +75,16 @@ module = @
     # TODO attack modifiers
     
     # p "damage_deal ad=#{src.ad100} t=#{state.tick_idx}"
-    damage100 = src.ad100
-    dst.hp100 -= damage100
+    di = new Damage_instance
+    di.damage100 = src.ad100
+    
+    for mod in src.a_mod_fn_list
+      mod.fn di, src, dst, state
+    
+    for mod in dst.damage_block_fn_list
+      mod.fn di, src, dst, state
+    
+    dst.hp100 -= di.damage100
     
     state.event_counter++
     

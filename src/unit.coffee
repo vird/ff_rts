@@ -1,6 +1,7 @@
 module = @
 {Status_effect} = require './status_effect'
 
+
 class @Unit
   _remove          : false
   _last_update_tick: 0
@@ -40,6 +41,12 @@ class @Unit
   a_post      : 10
   
   next_tick_attack_available : 0
+  # ###################################################################################################
+  #    attack modifier
+  # ###################################################################################################
+  # ВАЖНО. Порядок применения играет значение
+  a_mod_fn_list         : []
+  damage_block_fn_list  : []
   
   # ###################################################################################################
   #    cast
@@ -55,7 +62,6 @@ class @Unit
   status_effect_bitmap: [0, 0, 0, 0]
   # PROPOSITION а еще лучше было бы раскладывать из по bucket'ам для более быстрого обновления флагов, но это очень спорный trade-off
   status_effect_list  : []
-  
   # ###################################################################################################
   
   # targeting_system
@@ -67,6 +73,8 @@ class @Unit
   
   constructor : ()->
     @uid = module.Unit.uid++
+    @a_mod_fn_list        = []
+    @damage_block_fn_list = []
     @status_effect_bitmap = [0,0,0,0]
     @status_effect_list   = []
   
